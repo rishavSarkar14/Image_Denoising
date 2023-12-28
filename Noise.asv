@@ -1,0 +1,48 @@
+classdef Noise
+    properties (Constant)
+        noiseTypesInbuilt = ['gaussian', 'salt & pepper', 'speckle', 'poisson', 'localvar'];
+    end
+    methods
+        function noisy = noise_inbuilt(image, noiseType,h)
+            if(noiseType <= 3)
+                noisy = imnoise(image, Noise.noiseTypesInbuilt(noiseType), h);
+            elseif(noiseType == 4)
+                noisy = imnoise(image, Noise.noiseTypesInbuilt(noiseType), h);
+            else
+                noisy = imnoise(image, Noise.noiseTypesInbuilt(noiseType), h*rand(size(image)));
+            end
+        end
+
+        function noisy = noise_custom(image, noiseType, h)
+            sz = size(image);
+            switch noiseType
+                case 1
+                    noisy = rayleigh_noise_cvip(image, h*10, sz);
+
+                case 2
+                    noisy = gamma_noise_cvip(image, h, sz);
+                
+                case 3
+                    % Create a sinusoidal grating
+                    [x,y] = meshgrid(1:size(image,2), 1:size(image,1));
+                    grating = sin(2*pi*y/32);
+    
+                    % Add sinusoidal grating to the image
+                    noisy = im2double(image) + h*grating;
+    
+                    % Clip the values to [0,1]
+                    noisy(noisy < 0) = 0;
+                    noisy(noisy > 1) = 1;
+    
+                    % Convert back to uint8 format
+                    noisy = im2uint8(noisy);
+                
+                
+                
+                otherwise
+
+            end
+
+        end
+    end
+end

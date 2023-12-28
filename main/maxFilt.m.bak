@@ -1,0 +1,15 @@
+
+
+for i = 1:5
+    filename = sprintf("img/%d.jpg", i);
+    img = imread(filename);
+    img = im2gray(img);
+
+    for j = 1:9
+        h = j/10;
+        x = rand(size(img));
+        img_noise = img(x(:) < h);
+
+
+    end
+end

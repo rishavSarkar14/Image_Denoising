@@ -1,0 +1,51 @@
+clc
+clear all
+close all
+% reading the image
+k1=im2gray(imread('img/1.jpg'));
+k = k1;
+figure;
+imshow(k);
+title('Input Image');
+
+sz = [20 7];
+varTypes = ["string", "double", "double", "double", "double", "double", "double"];
+varNames = ["Noise", "Amount", "PSNR_Before", "SNR_Before", "PSNR_After", "SNR_After", "MSE"];
+metrics = table('Size', sz, 'VariableTypes', varTypes, 'VariableNames',varNames);
+%creating a matrix of size same as that of original image with random
+%numbers
+
+x=rand(size(k));
+
+% normalizing to create salt noise
+k(x(:)>0.65)=255;
+[peaksnr1, snr1] = psnr(k1, k);
+figure;
+imshow(k) 
+title("Noisy Image");
+
+sto=[];
+[a b]=size(k);
+%creating output matrix 
+output=zeros(a,b);
+%traversing the matrix to take 3X3 neighbors around the pixel
+for i=2:a-1
+    for j=2:b-1
+        sto=k(i-1:i+1, j-1:j+1);
+
+% taking the minimum value 
+        es=min(min(sto));
+% placing the minimum value in that place
+        output(i,j)=es;
+        sto=[];
+    end
+end
+output = uint8(output);
+[peaksnr2, snr2] = psnr(k1, output);
+mse = immse(k1, output);
+metrics(1, :) = {'pepper', 0.35, peaksnr1, snr1, peaksnr2, snr2, mse};
+filename = 'metrics.xlsx';
+writetable(metrics, filename);
+figure;
+imshow(uint8(output));
+title("filtered image")
